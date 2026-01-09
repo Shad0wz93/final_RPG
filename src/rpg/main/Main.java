@@ -1,13 +1,39 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+package rpg.main;
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+import rpg.dao.*;
+import rpg.ui.*;
+import rpg.composite.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        ConsoleView view = new ConsoleView();
+        CharacterDao characterDao = new CharacterDao();
+        GroupDao groupDao = new GroupDao();
+        ArmyDao armyDao = new ArmyDao();
+        GroupManager groupManager = new GroupManager();
+        ArmyManager armyManager = new ArmyManager();
+        CharacterController characterController =
+                new CharacterController(view, characterDao);
+
+        GroupController groupController =
+                new GroupController(view, groupManager, groupDao, characterDao);
+
+        ArmyController armyController =
+                new ArmyController(view, armyManager, armyDao, groupManager);
+
+        CombatController combatController =
+                new CombatController(view, characterDao, groupManager, armyManager);
+
+        ConsoleController consoleController =
+                new ConsoleController(
+                        view,
+                        characterController,
+                        groupController,
+                        armyController,
+                        combatController
+                );
+        consoleController.start();
     }
 }
