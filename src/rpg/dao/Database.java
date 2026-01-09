@@ -31,6 +31,32 @@ public class Database {
                         abilities TEXT
                     )
                 """);
+
+                s.execute("""
+                    CREATE TABLE IF NOT EXISTS groups (
+                        name TEXT PRIMARY KEY
+                    )
+                """);
+
+                s.execute("""
+                    CREATE TABLE IF NOT EXISTS armies (
+                        name TEXT PRIMARY KEY
+                    )
+                """);
+
+                s.execute("""
+                    CREATE TABLE IF NOT EXISTS group_characters (
+                        group_name TEXT,
+                        character_name TEXT
+                    )
+                """);
+
+                s.execute("""
+                    CREATE TABLE IF NOT EXISTS army_groups (
+                        army_name TEXT,
+                        group_name TEXT
+                    )
+                """);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

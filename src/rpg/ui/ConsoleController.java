@@ -1,10 +1,8 @@
 package rpg.ui;
 
 import rpg.builder.CharacterBuilder;
-import rpg.composite.CharacterLeaf;
-import rpg.composite.Group;
-import rpg.composite.GroupManager;
-import rpg.dao.CharacterDao;
+import rpg.composite.*;
+import rpg.dao.*;
 import rpg.decorator.InvisibilityDecorator;
 import rpg.model.Character;
 import rpg.settings.GameSettings;
@@ -17,7 +15,12 @@ public class ConsoleController {
 
     private final ConsoleView view;
     private final CharacterDao dao;
+
     private final GroupManager groupManager = new GroupManager();
+    private final ArmyManager armyManager = new ArmyManager();
+
+    private final GroupDao groupDao = new GroupDao();
+    private final ArmyDao armyDao = new ArmyDao();
 
     public ConsoleController(ConsoleView view, CharacterDao dao) {
         this.view = view;
@@ -35,7 +38,10 @@ public class ConsoleController {
                 case "3" -> createGroup();
                 case "4" -> addCharacterToGroup();
                 case "5" -> displayGroups();
-                case "6" -> {
+                case "6" -> createArmy();
+                case "7" -> addGroupToArmy();
+                case "8" -> displayArmies();
+                case "9" -> {
                     view.show("Au revoir !");
                     return;
                 }
@@ -77,10 +83,9 @@ public class ConsoleController {
 
             } catch (IllegalArgumentException e) {
                 view.show("Erreur : " + e.getMessage());
-                view.show("Merci de recommencer la saisie.\n");
-
+                view.show("Merci de recommencer.\n");
             } catch (Exception e) {
-                view.show("❌ Erreur technique : " + e.getMessage());
+                view.show("Erreur technique : " + e.getMessage());
                 return;
             }
         }
@@ -99,6 +104,7 @@ public class ConsoleController {
         try {
             String name = view.ask("Nom du groupe");
             groupManager.createGroup(name);
+            groupDao.saveGroup(name);
             view.show("Groupe créé");
         } catch (Exception e) {
             view.show("❌ " + e.getMessage());
@@ -124,6 +130,7 @@ public class ConsoleController {
             }
 
             group.add(new CharacterLeaf(character));
+            groupDao.addCharacterToGroup(groupName, charName);
             view.show("Personnage ajouté au groupe");
 
         } catch (Exception e) {
@@ -136,9 +143,52 @@ public class ConsoleController {
             view.show("Aucun groupe créé");
             return;
         }
+        groupManager.getAllGroups().values().forEach(Group::display);
+    }
 
-        groupManager.getAllGroups()
-                .values()
-                .forEach(Group::display);
+    private void createArmy() {
+        try {
+            String name = view.ask("Nom de l'armée");
+            armyManager.createArmy(name);
+            armyDao.saveArmy(name);
+            view.show("Armée créée");
+        } catch (Exception e) {
+            view.show("❌ " + e.getMessage());
+        }
+    }
+
+    private void addGroupToArmy() {
+        try {
+            String armyName = view.ask("Nom de l'armée");
+            Army army = armyManager.getArmy(armyName);
+
+            if (army == null) {
+                view.show("Armée introuvable");
+                return;
+            }
+
+            String groupName = view.ask("Nom du groupe");
+            Group group = groupManager.getGroup(groupName);
+
+            if (group == null) {
+                view.show("Groupe introuvable");
+                return;
+            }
+
+            army.add(group);
+            armyDao.addGroupToArmy(armyName, groupName);
+            view.show("Groupe ajouté à l'armée");
+
+        } catch (Exception e) {
+            view.show("❌ " + e.getMessage());
+        }
+    }
+
+    private void displayArmies() {
+        if (armyManager.getAllArmies().isEmpty()) {
+            view.show("Aucune armée créée");
+            return;
+        }
+        armyManager.getAllArmies().values().forEach(Army::display);
     }
 }
