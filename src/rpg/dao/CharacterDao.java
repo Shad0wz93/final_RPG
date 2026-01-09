@@ -1,10 +1,9 @@
 package rpg.dao;
 
+import rpg.decorator.AbilityFactory;
 import rpg.model.Character;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +34,7 @@ public class CharacterDao {
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
 
-            if (!rs.next()) {
-                return null;
-            }
-
+            if (!rs.next()) return null;
             return mapRowToCharacter(rs);
         }
     }
@@ -47,8 +43,7 @@ public class CharacterDao {
         List<Character> characters = new ArrayList<>();
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "SELECT * FROM characters");
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM characters");
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -58,18 +53,8 @@ public class CharacterDao {
         return characters;
     }
 
-    public void delete(String name) throws Exception {
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "DELETE FROM characters WHERE name = ?")) {
-
-            ps.setString(1, name);
-            ps.executeUpdate();
-        }
-    }
-
     private Character mapRowToCharacter(ResultSet rs) throws Exception {
-        Character c = new Character(
+        Character character = new Character(
                 rs.getString("name"),
                 rs.getInt("strength"),
                 rs.getInt("intelligence"),
@@ -79,9 +64,9 @@ public class CharacterDao {
         String abilities = rs.getString("abilities");
         if (abilities != null && !abilities.isBlank()) {
             for (String ability : abilities.split(",")) {
-                c.getAbilities().add(ability);
+                character = AbilityFactory.apply(character, ability);
             }
         }
-        return c;
+        return character;
     }
 }

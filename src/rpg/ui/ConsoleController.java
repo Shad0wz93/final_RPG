@@ -3,6 +3,7 @@ package rpg.ui;
 import rpg.builder.CharacterBuilder;
 import rpg.composite.*;
 import rpg.dao.*;
+import rpg.decorator.DodgeDecorator;
 import rpg.decorator.InvisibilityDecorator;
 import rpg.model.Character;
 import rpg.settings.GameSettings;
@@ -22,11 +23,40 @@ public class ConsoleController {
     private final GroupDao groupDao = new GroupDao();
     private final ArmyDao armyDao = new ArmyDao();
 
-    public ConsoleController(ConsoleView view, CharacterDao dao) {
+    public ConsoleController(ConsoleView view, CharacterDao dao) throws Exception {
         this.view = view;
         this.dao = dao;
+        loadAll();
     }
 
+    private void loadAll() throws Exception {
+
+        groupDao.loadGroupCharacters().forEach((groupName, characters) -> {
+            Group group = new Group(groupName);
+            groupManager.getAllGroups().put(groupName, group);
+
+            characters.forEach(charName -> {
+                try {
+                    Character c = dao.findByName(charName);
+                    if (c != null) {
+                        group.add(new CharacterLeaf(c));
+                    }
+                } catch (Exception ignored) {}
+            });
+        });
+
+        armyDao.loadArmyGroups().forEach((armyName, groups) -> {
+            Army army = new Army(armyName);
+            armyManager.getAllArmies().put(armyName, army);
+
+            groups.forEach(groupName -> {
+                Group g = groupManager.getGroup(groupName);
+                if (g != null) {
+                    army.add(g);
+                }
+            });
+        });
+    }
     public void start() throws Exception {
         while (true) {
             view.showMenu();
@@ -72,10 +102,17 @@ public class ConsoleController {
                         .linkWith(new StatsValidator())
                         .validate(character);
 
-                String invis = view.ask("Ajouter invisibilité ? (oui/non)");
-                if (invis.equalsIgnoreCase("oui")) {
-                    new InvisibilityDecorator(character);
+                String abilityChoice = view.ask("""
+                Ajouter une capacité ?
+                1 - Invisibilité
+                2 - Esquive
+                0 - Aucune
+                """);
+                switch (abilityChoice) {
+                    case "1" -> character = new InvisibilityDecorator(character);
+                    case "2" -> character = new DodgeDecorator(character);
                 }
+
 
                 dao.save(character);
                 view.show("Personnage sauvegardé !");

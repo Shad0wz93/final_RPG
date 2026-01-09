@@ -5,16 +5,16 @@ import rpg.model.Character;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InvisibilityDecorator extends CharacterDecorator {
+public class DodgeDecorator extends CharacterDecorator {
 
-    public InvisibilityDecorator(Character base) {
+    public DodgeDecorator(Character base) {
         super(base);
     }
 
     @Override
     public List<String> getAbilities() {
         List<String> abilities = new ArrayList<>(base.getAbilities());
-        abilities.add("Invisibilité");
+        abilities.add("Esquive");
         return abilities;
     }
 }
