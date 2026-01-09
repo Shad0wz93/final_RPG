@@ -1,13 +1,13 @@
-# 🧙 RPG – Projet Java Console
+# RPG – Projet Java Console
 
-## 📌 Présentation
+##  Présentation
 
-Ce projet est une application **Java en console** simulant un jeu de rôle (RPG).  
-Il permet de créer des **personnages**, de les regrouper en **groupes** puis en **armées**, et de les faire s’affronter dans différents types de **combats**.
+Ce projet est une application Java en console simulant un jeu de rôle (RPG).  
+Il permet de créer des personnages, de les regrouper en groupes puis en armées, et de les faire s’affronter dans différents types de combats.
 
 ---
 
-## 🎯 Fonctionnalités
+##  Fonctionnalités
 
 ### 👤 Gestion des personnages
 - Création de personnages avec :
@@ -39,7 +39,7 @@ Il permet de créer des **personnages**, de les regrouper en **groupes** puis en
 
 ---
 
-## ⚔️ Système de combat
+##  Système de combat
 
 ### Types de combats
 - Personnage vs Personnage
@@ -63,7 +63,7 @@ Il permet de créer des **personnages**, de les regrouper en **groupes** puis en
 
 ---
 
-### 📜 Détails affichés lors d’un combat
+###  Détails affichés lors d’un combat
 - Participants
 - Puissance calculée
 - Résultat du combat (vainqueur ou match nul)
