@@ -13,6 +13,8 @@ public class CombatEngine {
     private final List<CombatObserver> observers = new ArrayList<>();
     private final Random random = new Random();
 
+    private PowerStrategy strategy = new DefaultPowerStrategy();
+
     public void addObserver(CombatObserver observer) {
         observers.add(observer);
     }
@@ -46,8 +48,8 @@ public class CombatEngine {
             return;
         }
 
-        int pa = powerOf(a);
-        int pb = powerOf(b);
+        int pa = strategy.compute(a);
+        int pb = strategy.compute(b);
 
         notifyObservers(a.getName() + " puissance = " + pa);
         notifyObservers(b.getName() + " puissance = " + pb);
@@ -67,14 +69,5 @@ public class CombatEngine {
         if (pa > pb) notifyObservers("🏆 Groupe 1 gagne");
         else if (pb > pa) notifyObservers("🏆 Groupe 2 gagne");
         else notifyObservers("🤝 Match nul");
-    }
-
-    private int powerOf(Character c) {
-
-        int[] stats = {c.getStrength(), c.getAgility(), c.getIntelligence()};
-        int main = Math.max(stats[0], Math.max(stats[1], stats[2]));
-        int dice = random.nextInt(6) + 1;
-
-        return (int) (main * 1.5 + stats[0] + stats[1] + stats[2] + dice);
     }
 }

@@ -31,6 +31,10 @@ public class Character {
         }
     }
 
+    public void removeAbility(String ability) {
+        abilities.remove(ability);
+    }
+
     public List<String> getAbilities() {
         return Collections.unmodifiableList(abilities);
     }

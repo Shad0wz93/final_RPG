@@ -2,16 +2,15 @@ package rpg.ui;
 
 import rpg.builder.CharacterBuilder;
 import rpg.combat.CombatEngine;
+import rpg.command.*;
 import rpg.composite.*;
 import rpg.dao.*;
-import rpg.decorator.DodgeDecorator;
-import rpg.decorator.InvisibilityDecorator;
-import rpg.model.Character;
+import rpg.decorator.*;
+import rpg.model.*;
+import rpg.observer.CharacterLog;
 import rpg.observer.CombatLog;
 import rpg.settings.GameSettings;
-import rpg.validation.NameValidator;
-import rpg.validation.StatsValidator;
-import rpg.command.GameEngine;
+import rpg.validation.*;
 
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class ConsoleController {
 
             characters.forEach(charName -> {
                 try {
-                    Character c = characterDao.findByName(charName);
+                    rpg.model.Character c = characterDao.findByName(charName);
                     if (c != null) {
                         group.add(new CharacterLeaf(c));
                     }
@@ -101,28 +100,41 @@ public class ConsoleController {
                 int intel = Integer.parseInt(view.ask("Intelligence"));
                 int agi = Integer.parseInt(view.ask("Agilité"));
 
-                Character character = new CharacterBuilder()
+                // ✅ 1️⃣ BUILDER UTILISÉ
+                rpg.model.Character baseCharacter = new CharacterBuilder()
                         .name(name)
                         .strength(str)
                         .intelligence(intel)
                         .agility(agi)
                         .build();
 
+                // ✅ 2️⃣ OBSERVER ENROBÉ
+                rpg.model.Character character =
+                        new ObservableCharacter(baseCharacter);
+                ((ObservableCharacter) character).addObserver(new CharacterLog());
+
+                // ✅ 3️⃣ VALIDATION
                 new NameValidator()
                         .linkWith(new StatsValidator())
                         .validate(character);
 
                 String ability = view.ask("""
-                Ajouter une capacité ?
-                1 - Invisibilité (30%)
-                2 - Esquive (20%)
-                0 - Aucune
-                """);
+            Ajouter une capacité ?
+            1 - Invisibilité
+            2 - Esquive
+            0 - Aucune
+            """);
 
-                if ("1".equals(ability)) {
+                // ✅ 4️⃣ DECORATOR
+                if ("1".equals(ability))
                     character = new InvisibilityDecorator(character);
-                } else if ("2".equals(ability)) {
+                else if ("2".equals(ability))
                     character = new DodgeDecorator(character);
+
+                // ✅ 5️⃣ RETRAIT DYNAMIQUE
+                String remove = view.ask("Retirer une capacité ? (nom exact ou vide)");
+                if (!remove.isBlank()) {
+                    AbilityRemover.remove(character, remove);
                 }
 
                 characterDao.save(character);
@@ -135,9 +147,11 @@ public class ConsoleController {
         }
     }
 
+
+
     private void listCharacters() throws Exception {
 
-        List<Character> characters = characterDao.findAll();
+        List<rpg.model.Character> characters = characterDao.findAll();
 
         if (characters.isEmpty()) {
             view.show("Aucun personnage");
@@ -145,13 +159,7 @@ public class ConsoleController {
         }
 
         view.show("📜 Personnages :");
-        characters.forEach(c ->
-                view.show("- " + c.getName()
-                        + " [STR=" + c.getStrength()
-                        + ", INT=" + c.getIntelligence()
-                        + ", AGI=" + c.getAgility()
-                        + ", abilities=" + c.getAbilities() + "]")
-        );
+        characters.forEach(c -> view.show(c.toString()));
     }
 
     private void createGroup() {
@@ -174,7 +182,7 @@ public class ConsoleController {
 
         showCharactersRecap();
         String charName = view.ask("Choisir le personnage");
-        Character c = characterDao.findByName(charName);
+        rpg.model.Character c = characterDao.findByName(charName);
         if (c == null) return;
 
         group.add(new CharacterLeaf(c));
@@ -233,10 +241,12 @@ public class ConsoleController {
 
             case "1" -> {
                 showCharactersRecap();
-                Character a = characterDao.findByName(view.ask("Attaquant"));
-                Character b = characterDao.findByName(view.ask("Défenseur"));
+                rpg.model.Character a = characterDao.findByName(view.ask("Attaquant"));
+                rpg.model.Character b = characterDao.findByName(view.ask("Défenseur"));
                 if (a != null && b != null)
-                    gameEngine.executeCommand(() -> combatEngine.fight(a, b));
+                    gameEngine.executeCommand(
+                            new AttackCommand(combatEngine, a, b)
+                    );
             }
 
             case "2" -> {
@@ -244,7 +254,9 @@ public class ConsoleController {
                 Group g1 = groupManager.getGroup(view.ask("Groupe 1"));
                 Group g2 = groupManager.getGroup(view.ask("Groupe 2"));
                 if (g1 != null && g2 != null)
-                    gameEngine.executeCommand(() -> combatEngine.fight(g1, g2));
+                    gameEngine.executeCommand(
+                            new GroupFightCommand(combatEngine, g1, g2)
+                    );
             }
 
             case "3" -> {
@@ -252,7 +264,9 @@ public class ConsoleController {
                 Army a1 = armyManager.getArmy(view.ask("Armée 1"));
                 Army a2 = armyManager.getArmy(view.ask("Armée 2"));
                 if (a1 != null && a2 != null)
-                    gameEngine.executeCommand(() -> combatEngine.fight(a1, a2));
+                    gameEngine.executeCommand(
+                            new GroupFightCommand(combatEngine, a1, a2)
+                    );
             }
         }
     }
