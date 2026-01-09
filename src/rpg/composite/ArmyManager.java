@@ -8,12 +8,11 @@ public class ArmyManager {
     private final Map<String, Army> armies = new HashMap<>();
 
     public void createArmy(String name) {
-        if (name == null || name.isBlank()) {
+        if (name == null || name.isBlank())
             throw new IllegalArgumentException("Nom d'armée invalide");
-        }
-        if (armies.containsKey(name)) {
+        if (armies.containsKey(name))
             throw new IllegalArgumentException("L'armée existe déjà");
-        }
+
         armies.put(name, new Army(name));
     }
 

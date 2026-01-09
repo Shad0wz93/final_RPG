@@ -11,19 +11,16 @@ public class Database {
 
     static {
         try {
-            String projectDir = System.getProperty("user.dir");
-            DB_PATH = projectDir + File.separator + "data" + File.separator + "characters.db";
+            String dir = System.getProperty("user.dir");
+            DB_PATH = dir + File.separator + "data" + File.separator + "characters.db";
 
-            File dataDir = new File(projectDir, "data");
-            if (!dataDir.exists()) {
-                dataDir.mkdirs();
-            }
+            new File(dir + File.separator + "data").mkdirs();
 
             try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
                  Statement s = c.createStatement()) {
 
                 s.execute("""
-                    CREATE TABLE IF NOT EXISTS characters (
+                    CREATE TABLE IF NOT EXISTS characters(
                         name TEXT PRIMARY KEY,
                         strength INTEGER,
                         intelligence INTEGER,
@@ -33,26 +30,22 @@ public class Database {
                 """);
 
                 s.execute("""
-                    CREATE TABLE IF NOT EXISTS groups (
-                        name TEXT PRIMARY KEY
-                    )
+                    CREATE TABLE IF NOT EXISTS groups(name TEXT PRIMARY KEY)
                 """);
 
                 s.execute("""
-                    CREATE TABLE IF NOT EXISTS armies (
-                        name TEXT PRIMARY KEY
-                    )
+                    CREATE TABLE IF NOT EXISTS armies(name TEXT PRIMARY KEY)
                 """);
 
                 s.execute("""
-                    CREATE TABLE IF NOT EXISTS group_characters (
+                    CREATE TABLE IF NOT EXISTS group_characters(
                         group_name TEXT,
                         character_name TEXT
                     )
                 """);
 
                 s.execute("""
-                    CREATE TABLE IF NOT EXISTS army_groups (
+                    CREATE TABLE IF NOT EXISTS army_groups(
                         army_name TEXT,
                         group_name TEXT
                     )

@@ -3,6 +3,7 @@ package rpg.builder;
 import rpg.model.Character;
 
 public class CharacterBuilder {
+
     private String name;
     private int strength;
     private int intelligence;

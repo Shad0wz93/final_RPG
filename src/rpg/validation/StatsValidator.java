@@ -10,11 +10,9 @@ public class StatsValidator extends CharacterValidator {
         int total = character.totalStats();
         int max = GameSettings.getInstance().getMaxStatPoints();
 
-        if (total > max) {
-            throw new IllegalArgumentException(
-                    "Trop de points : " + total + " / " + max
-            );
-        }
+        if (total > max)
+            throw new IllegalArgumentException("Trop de points : " + total + "/" + max);
+
         validateNext(character);
     }
 }

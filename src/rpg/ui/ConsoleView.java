@@ -16,7 +16,9 @@ public class ConsoleView {
         System.out.println("6. Créer une armée");
         System.out.println("7. Ajouter un groupe à une armée");
         System.out.println("8. Afficher les armées");
-        System.out.println("9. Quitter");
+        System.out.println("9. Lancer un combat");
+        System.out.println("10. Rejouer les actions");
+        System.out.println("0. Quitter");
         System.out.print("> ");
     }
 

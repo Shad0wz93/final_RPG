@@ -8,12 +8,11 @@ public class GroupManager {
     private final Map<String, Group> groups = new HashMap<>();
 
     public void createGroup(String name) {
-        if (name == null || name.isBlank()) {
+        if (name == null || name.isBlank())
             throw new IllegalArgumentException("Nom de groupe invalide");
-        }
-        if (groups.containsKey(name)) {
+        if (groups.containsKey(name))
             throw new IllegalArgumentException("Le groupe existe déjà");
-        }
+
         groups.put(name, new Group(name));
     }
 

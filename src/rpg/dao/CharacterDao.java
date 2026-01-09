@@ -21,7 +21,6 @@ public class CharacterDao {
             ps.setInt(3, c.getIntelligence());
             ps.setInt(4, c.getAgility());
             ps.setString(5, String.join(",", c.getAbilities()));
-
             ps.executeUpdate();
         }
     }
@@ -33,28 +32,26 @@ public class CharacterDao {
 
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
-
             if (!rs.next()) return null;
-            return mapRowToCharacter(rs);
+            return mapRow(rs);
         }
     }
 
     public List<Character> findAll() throws Exception {
-        List<Character> characters = new ArrayList<>();
-
+        List<Character> list = new ArrayList<>();
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement("SELECT * FROM characters");
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                characters.add(mapRowToCharacter(rs));
+                list.add(mapRow(rs));
             }
         }
-        return characters;
+        return list;
     }
 
-    private Character mapRowToCharacter(ResultSet rs) throws Exception {
-        Character character = new Character(
+    private Character mapRow(ResultSet rs) throws Exception {
+        Character c = new Character(
                 rs.getString("name"),
                 rs.getInt("strength"),
                 rs.getInt("intelligence"),
@@ -63,10 +60,10 @@ public class CharacterDao {
 
         String abilities = rs.getString("abilities");
         if (abilities != null && !abilities.isBlank()) {
-            for (String ability : abilities.split(",")) {
-                character = AbilityFactory.apply(character, ability);
+            for (String a : abilities.split(",")) {
+                c = AbilityFactory.apply(c, a.trim());
             }
         }
-        return character;
+        return c;
     }
 }
