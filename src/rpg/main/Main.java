@@ -1,19 +1,39 @@
 package rpg.main;
 
-import rpg.dao.CharacterDao;
-import rpg.ui.ConsoleController;
-import rpg.ui.ConsoleView;
+import rpg.dao.*;
+import rpg.ui.*;
+import rpg.composite.*;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
         ConsoleView view = new ConsoleView();
-        CharacterDao dao = new CharacterDao();
+        CharacterDao characterDao = new CharacterDao();
+        GroupDao groupDao = new GroupDao();
+        ArmyDao armyDao = new ArmyDao();
+        GroupManager groupManager = new GroupManager();
+        ArmyManager armyManager = new ArmyManager();
+        CharacterController characterController =
+                new CharacterController(view, characterDao);
 
-        System.out.println("Personnages en base :");
-        dao.findAll().forEach(System.out::println);
+        GroupController groupController =
+                new GroupController(view, groupManager, groupDao, characterDao);
 
-        new ConsoleController(view, dao).start();
+        ArmyController armyController =
+                new ArmyController(view, armyManager, armyDao, groupManager);
+
+        CombatController combatController =
+                new CombatController(view, characterDao, groupManager, armyManager);
+
+        ConsoleController consoleController =
+                new ConsoleController(
+                        view,
+                        characterController,
+                        groupController,
+                        armyController,
+                        combatController
+                );
+        consoleController.start();
     }
 }

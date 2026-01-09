@@ -29,6 +29,10 @@ public class Army implements GroupComponent {
         groups.forEach(Group::display);
     }
 
+    public List<GroupComponent> getChildren() {
+        return new ArrayList<>(groups);
+    }
+
     public String getName() {
         return name;
     }

@@ -8,7 +8,6 @@ public class ObservableCharacter extends Character {
 
     private final List<CharacterObserver> observers = new ArrayList<>();
 
-    // ✅ NOUVEAU CONSTRUCTEUR À PARTIR D’UN CHARACTER
     public ObservableCharacter(Character base) {
         super(
                 base.getName(),
